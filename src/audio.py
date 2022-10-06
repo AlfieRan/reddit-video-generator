@@ -1,4 +1,3 @@
-from tokenize import String
 from gtts import gTTS
 
 # Language in which you want to convert
