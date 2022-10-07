@@ -1,17 +1,29 @@
 import audio;
 import video;
-
-DEMO_TEXT = "dskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkgjdskjhvfkg"
+import reddit;
 
 AUDIO_PATH = "./cache/audio.mp3"
 FOOTAGE_PATH = "./footage/minecraft.mp4"
 OUTPUT_PATH = "./output/"
 
-def outPath():
-	return OUTPUT_PATH + 'output.mp4'
+def outPath(post):
+	return f"{OUTPUT_PATH}{reddit.get_post_title(post)}.mp4"
 
-print("Creating audio...")
-audio.create(DEMO_TEXT, AUDIO_PATH)
-print("Creating video...")
-video.create(AUDIO_PATH, FOOTAGE_PATH, outPath())
-print("Done!")
+def main():
+	print("Getting reddit post...")
+	post = reddit.load_random_post()
+	text = reddit.get_post_text(post)
+
+	print("Creating audio...")
+	audio.create(text, AUDIO_PATH)
+
+	print("Creating video...")
+	video.create(AUDIO_PATH, FOOTAGE_PATH, outPath(post))
+
+	print("Marking post as used...")
+	reddit.mark_post_as_used(post)
+
+	print("Done!")
+
+if __name__ == "__main__":
+	main()
