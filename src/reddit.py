@@ -17,7 +17,7 @@ POST_USED_FILEPATH = "./cache/used_posts.json"
 POST_ID_FILEPATH = "./cache/prev_id.json"
 VIDEO_ID_FILEPATH = "./cache/prev_vid_ids.json"
 
-SUBREDDITS=['offmychest', 'confession']
+SUBREDDITS=['offmychest', 'confession', 'askReddit']
 
 # Setup Globals
 HEADERS = {

@@ -1,6 +1,5 @@
 from gtts import gTTS
 import moviepy.editor as mpy
-from io import BytesIO
 
 # Language in which you want to convert
 language = 'en'
@@ -16,8 +15,8 @@ def create(text, path):
 	tts.save(TMP_AUDIO)
 
 	print("Reopening audio as a moviepy object...")
-	audioClip = mpy.AudioFileClip(TMP_AUDIO).set_start(0.35)
-	audioClip = audioClip.set_end(audioClip.duration - 0.35)
+	audioClip = mpy.AudioFileClip(TMP_AUDIO).set_start(0.1)
+	audioClip = audioClip.set_end(audioClip.duration - 0.1)
 	print("Resaving audio with effects...")
 	audioClip.write_audiofile(path, ffmpeg_params=FFMPEG_PARAMS)
 	audioClip.close()
