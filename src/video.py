@@ -43,10 +43,10 @@ def split_text(text: str):
 		if len(words) < 1:
 			continue
 		elif len(words) < 15:
-			print(f"Adding sentence with {len(words)} words:\t {sentence}\n\n")
+			print(f"Adding sentence with {len(words)} words:\t {sentence}")
 			Phrases.append(sentence)
 		else:
-			print(f"Splitting sentence with {len(words)} words:\t {sentence}\n\n")
+			print(f"Splitting sentence with {len(words)} words:\t {sentence}")
 			Phrases.extend(split_sentence(words))
 				
 	for phrase in Phrases:
@@ -55,60 +55,108 @@ def split_text(text: str):
 
 	return Phrases
 
+def captionise_text(text: str):
+	if len(text) < 30:
+		return text
+	
+	words = text.split(" ")
+	output = ""
+	line = ""
+	for word in words:
+		# 29 rather than 30 to account for the space
+		if len(line) + len(word) < 29:
+			line += f"{word} "
+		else:
+			output += f"{line}\n"
+			line = f"{word} "
+
+	if len(line) > 0:
+		output += line
+	
+	return output
+
+def makeText(text: str, fontSize: int = 50):
+	return mpy.TextClip(text, fontsize=fontSize, color="black", bg_color="white", font="Arial-Bold", method='label')
 
 # Flow for creating a video
 # Split text up into sentences/short phrases
 # For each sentence/phrase:
-# 	Generate audio
-# 	Generate video with subtitles
-# 	Combine audio and video
-# 	Append to final video
-# 	Repeat
+# 	1. Generate audio
+# 	2. Generate video with audio
+# 	3. Add subtitles to video
+# 	4. Append to final video
+# 	5. Repeat
 # Save final video
 
 def create(text, footage_path, video_path):
+	# Split text up into sentences/short phrases
 	Phrases = split_text(text)
 
 	# initialise background video
 	full = mpy.VideoFileClip(footage_path)
+	clips = []
 	audioClips = []
 	audioLength = 0
 
-	# Generate audio for phrase
+	# 1. Generate audio for phrase
 	for i, phrase in enumerate(Phrases):
-		print(f"[{i}/{len(Phrases)}] Generating audio...")
-		audio.create(phrase, f"{AUDIO_PATH}{i}.{AUDIO_ENDING}")
-		audioClips.append(mpy.AudioFileClip(AUDIO_PATH))
+		print(f"[{i}/{len(Phrases)-1}] Generating audio...")
+		audioClipPath = f"{AUDIO_PATH}{i}.{AUDIO_ENDING}"
+		audio.create(phrase, audioClipPath)
+		# audio gets saved and reloaded here to apply ffmpeg effects
+		audioClipTmp = mpy.AudioFileClip(audioClipPath)
+		audioClipTmp = audioClipTmp.set_start(0.1).set_end(audioClipTmp.duration - 0.1)
+		audioClips.append(audioClipTmp)
 		audioLength += audioClips[-1].duration
 
+	start_point = random.uniform((PADDING*full.duration), full.duration - (audioLength + (PADDING*full.duration)))
 
+	
 	for i, phrase in enumerate(Phrases):
-		print(f"[{i}/{len(Phrases)}] Generating video...")
+		# 2. Generate video with audio
+		print(f"[{i}/{len(Phrases)-1}] Generating video...")
+		audioClip = audioClips[i]
 
-	# Create background footage
-	start_point = random.uniform(0, full.duration - (audioLength + (PADDING*full.duration)))
+		clip = (full.
+			subclip(start_point, start_point + audioClip.duration).
+			set_audio(audioClip).
+			set_duration(audioClip.duration))
+			
+		# increase start point for next clip
+		start_point += audioClip.duration
 
-	# Set the start and end points of the video to a random point in the footage based on the audio length
-	clip = (full.
-		subclip(start_point, start_point + audioLength).
-		set_audio(audioClip).
-		set_duration(audioClip.duration))
+		# Crop the video to the correct aspect ratio
+		cropped = None
+		if audioLength > 58:
+			print("Audio is too long for a short, making a long...")
+			cropped = crop_long(clip)
+		else:
+			cropped = crop_short(clip)
 
-	# Crop the video to the correct aspect ratio
-	cropped = None
-	if audioClip.duration > 58:
-		print("Audio is too long for a short, making a long...")
-		cropped = crop_long(clip)
-	else:
-		cropped = crop_short(clip)
+		# 3. Add subtitles to video
+		print(f"[{i}/{len(Phrases)-1}] Adding subtitles...")
+		subtitles = (makeText(captionise_text(phrase)).
+						set_position(("center", "center")))
+
+		# Append to video
+		print(f"[{i}/{len(Phrases)-1}] Appending to video...")
+		finalClip = mpy.CompositeVideoClip([cropped, subtitles])
+		finalClip.duration = audioClip.duration
+		clips.append(finalClip)
+
+	# 4. Append to final video
+	print("Appending clips to final video...")
+	video = mpy.concatenate_videoclips(clips)
+	additional_text = (makeText("@MyBalls", fontSize=80).set_duration(video.duration).set_position(("center", 0.75), relative=True))
+	final = mpy.CompositeVideoClip([video, additional_text])
 
 	# Save the video
 	print("Saving video...")
-	cropped.write_videofile(video_path, fps=FPS, codec=CODEC)
+	final.write_videofile(video_path, fps=FPS, codec=CODEC)
 	print("Done with video!")
 	full.close()
-	clip.close()
-	cropped.close()
+	final.close()
+	# should be closed automatically, but close large videos just in case
 
 def crop_short(clip):
 	W, H = clip.size

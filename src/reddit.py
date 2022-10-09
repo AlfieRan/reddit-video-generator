@@ -132,6 +132,12 @@ def get_hot_posts_random():
 	subreddit = random.choice(SUBREDDITS)
 	return get_hot_posts(subreddit)
 
+def get_specific_post(post_id):
+	posts = get_saved_posts()
+	for post in posts:
+		if post['id'] == post_id:
+			return post
+	return None
 
 # ====================================================== MAIN ======================================================
 def get_more_posts():

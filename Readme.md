@@ -1,6 +1,5 @@
 # Needs Doing
 
--   Add video tech to overlay screenshots of the posts onto the video OR convert text into subtitles
 -   [possibly?] Connect to youtube api
 
 # Requirements
@@ -9,12 +8,13 @@
 -   `python`
 -   `moviepy`
 -   `gtts`
+-   `imageMagick`
 
 # Setup
 
-Create three folders: `cache`, `footage` and `output` in the root of the project (the same level as the source folder).
+Either run the program once or create a directory called `footage` in the root of the project (the same level as the source folder).
 
-Place an mp4 video file containing your background footage in the footage file, the program is currently setup to expect a file named "minecraft.mp4" but this can be easily changed to whatever you want.
+Place an mp4 video file containing your background footage in the footage file, the program is currently setup to expect a file named "minecraft.mp4" but this can be easily changed to whatever you want by changing the `FOOTAGE_PATH` constant in `src/main.py`.
 
 ## Env
 

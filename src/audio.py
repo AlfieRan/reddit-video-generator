@@ -1,5 +1,6 @@
 from gtts import gTTS
 import moviepy.editor as mpy
+import moviepy.audio.fx.all as afx
 
 # Language in which you want to convert
 language = 'en'
@@ -17,6 +18,7 @@ def create(text, path):
 	print("Reopening audio as a moviepy object...")
 	audioClip = mpy.AudioFileClip(TMP_AUDIO).set_start(0.1)
 	audioClip = audioClip.set_end(audioClip.duration - 0.1)
+	audioClip = afx.audio_fadeout(afx.audio_fadein(audioClip, 0.1), 0.1)
 	print("Resaving audio with effects...")
 	audioClip.write_audiofile(path, ffmpeg_params=FFMPEG_PARAMS)
 	audioClip.close()
