@@ -76,7 +76,7 @@ def captionise_text(text: str):
 	return output
 
 def makeText(text: str, fontSize: int = 50):
-	return mpy.TextClip(text, fontsize=fontSize, color="black", bg_color="white", font="Arial-Bold", method='label')
+	return mpy.TextClip(text, fontsize=fontSize, color="white", stroke_color="black", stroke_width=2, font="Arial-Bold", method='label')
 
 # Flow for creating a video
 # Split text up into sentences/short phrases

@@ -17,13 +17,16 @@ POST_USED_FILEPATH = "./cache/used_posts.json"
 POST_ID_FILEPATH = "./cache/prev_id.json"
 VIDEO_ID_FILEPATH = "./cache/prev_vid_ids.json"
 
-SUBREDDITS=['offmychest', 'confession', 'askReddit']
+SUBREDDITS=['offmychest', 'confession', 'AmItheAsshole']
+
+# Figure out how to implement comments for subreddits such as askReddit
 
 # Setup Globals
+LOGGED_IN = False
 HEADERS = {
 	'User-Agent': 'Reddit_yt_Bot/0.0.1',
 }
-LOGGED_IN = False
+
 
 # ====================================================== UTILS ======================================================
 # Converts raw reddit api data to a list of dictionaries that contain only the data we need
@@ -103,9 +106,12 @@ def save_used_posts(posts):
 # ====================================================== API ======================================================
 # Login function - called once at the start of the program
 def login():
-	if LOGGED_IN:
-		print("Already logged in to reddit api.")
-		return
+	try:
+		if LOGGED_IN:
+			print("Already logged in to reddit api.")
+			return
+	except:
+		pass
 
 	auth = requests.auth.HTTPBasicAuth(CLIENT_ID, CLIENT_SECRET)
 
